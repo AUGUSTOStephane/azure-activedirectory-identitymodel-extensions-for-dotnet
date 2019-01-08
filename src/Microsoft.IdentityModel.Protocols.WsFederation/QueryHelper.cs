@@ -89,11 +89,17 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
                 if (equalIndex < delimiterIndex)
                 {
                     while (scanIndex != equalIndex && char.IsWhiteSpace(queryString[scanIndex]))
-                    {
                         ++scanIndex;
-                    }
+
                     string name = queryString.Substring(scanIndex, equalIndex - scanIndex);
                     string value = queryString.Substring(equalIndex + 1, delimiterIndex - equalIndex - 1);
+
+                    // TODO restrict only inside assertion.
+                    if (name == "wresult" && value.Contains("%0D"))
+                    {
+                        value = value.Replace("%0D", "%26%23xD%3B");
+                    }
+
                     accumulator.Append(
                         Uri.UnescapeDataString(name.Replace('+', ' ')),
                         Uri.UnescapeDataString(value.Replace('+', ' ')));
